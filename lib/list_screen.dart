@@ -15,6 +15,7 @@ class _ListScreenState extends State<ListScreen> {
   List<Pojo> dataList = [];
   bool _getDataListInProgress = false;
   bool _isEverythingOkay = true;
+  String _errorMessage = "Something Wrong";
 
   @override
   void initState() {
@@ -32,12 +33,12 @@ class _ListScreenState extends State<ListScreen> {
       ),
       body: Visibility(
         visible: _isEverythingOkay,
-        replacement: const Center(
+        replacement: Center(
           child: Wrap(
             children: [
               Text(
-                "Something Wrong! Please try again",
-                style: TextStyle(
+                _errorMessage,
+                style: const TextStyle(
                   color: Colors.red,
                   fontWeight: FontWeight.bold,
                   fontSize: 15.0,
@@ -97,11 +98,30 @@ class _ListScreenState extends State<ListScreen> {
         dataList.add(data);
       }
       _getDataListInProgress = false;
-    } else {
+      setState(() {});
+    } else if(response.statusCode == 400){
+      _errorMessage = "Bad Request: The server cannot process the request due to a client error, such as malformed syntax or invalid parameters.";
       _isEverythingOkay = false;
       setState(() {});
-    }
-    if (_isEverythingOkay) {
+    } else if(response.statusCode == 401){
+      _errorMessage = "Unauthorized: The request requires user authentication. The client must provide credentials to access the resource.";
+      _isEverythingOkay = false;
+      setState(() {});
+    } else if(response.statusCode == 403){
+      _errorMessage = "Forbidden: The server understood the request, but refuses to authorize it. No authentication will help.";
+      _isEverythingOkay = false;
+      setState(() {});
+    } else if(response.statusCode == 404){
+      _errorMessage = "Not Found: The server cannot find the requested resource. This status code is commonly used when a resource does not exist or when a route is not found.";
+      _isEverythingOkay = false;
+      setState(() {});
+    } else if(response.statusCode == 500){
+      _errorMessage = "Internal Server Error: The server encountered an unexpected condition that prevented it from fulfilling the request.";
+      _isEverythingOkay = false;
+      setState(() {});
+    } else {
+      _errorMessage = "Something Wrong";
+      _isEverythingOkay = false;
       setState(() {});
     }
   }
